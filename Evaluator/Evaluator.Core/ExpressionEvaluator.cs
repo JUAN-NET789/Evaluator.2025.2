@@ -8,51 +8,46 @@ public class ExpressionEvaluator
         return Calulate(postfix);
     }
 
-    private static string InfixToPostfix(string infix)
+    private static List<string> InfixToPostfix(string infix)
     {
         var stack = new Stack<char>();
-        var postfix = string.Empty;
-        foreach (char item in infix)
+        var postfix = new List<string>();
+        int i = 0;
+        while (i < infix.Length)
         {
-            if (IsOperator(item))
+            if (char.IsWhiteSpace(infix[i]))
             {
-                if (item == ')')
+                i++;
+                continue;
+            }
+
+            if (IsOperator(infix[i]))
+            {
+                if (infix[i] == ')')
                 {
-                    do
-                    {
-                        postfix += stack.Pop();
-                    } while (stack.Peek() != '(');
-                    stack.Pop();
+                    while (stack.Peek() != '(')
+                        postfix.Add(stack.Pop().ToString());
+                    stack.Pop(); // Remove '('
                 }
                 else
                 {
-                    if (stack.Count > 0)
-                    {
-                        if (PriorityInfix(item) > PriorityStack(stack.Peek()))
-                        {
-                            stack.Push(item);
-                        }
-                        else
-                        {
-                            postfix += stack.Pop();
-                            stack.Push(item);
-                        }
-                    }
-                    else
-                    {
-                        stack.Push(item);
-                    }
+                    while (stack.Count > 0 && PriorityInfix(infix[i]) <= PriorityStack(stack.Peek()))
+                        postfix.Add(stack.Pop().ToString());
+                    stack.Push(infix[i]);
                 }
+                i++;
             }
             else
             {
-                postfix += item;
+                // Parse multi-digit number (and decimals)
+                int start = i;
+                while (i < infix.Length && (char.IsDigit(infix[i]) || infix[i] == '.'))
+                    i++;
+                postfix.Add(infix.Substring(start, i - start));
             }
         }
         while (stack.Count > 0)
-        {
-            postfix += stack.Pop();
-        }
+            postfix.Add(stack.Pop().ToString());
         return postfix;
     }
 
@@ -76,20 +71,20 @@ public class ExpressionEvaluator
         _ => throw new Exception("Invalid expression."),
     };
 
-    private static double Calulate(string postfix)
+    private static double Calulate(List<string> postfix)
     {
         var stack = new Stack<double>();
-        foreach (char item in postfix)
+        foreach (var token in postfix)
         {
-            if (IsOperator(item))
+            if (token.Length == 1 && IsOperator(token[0]))
             {
                 var op2 = stack.Pop();
                 var op1 = stack.Pop();
-                stack.Push(Calulate(op1, item, op2));
+                stack.Push(Calulate(op1, token[0], op2));
             }
             else
             {
-                stack.Push(Convert.ToDouble(item.ToString()));
+                stack.Push(Convert.ToDouble(token));
             }
         }
         return stack.Peek();
