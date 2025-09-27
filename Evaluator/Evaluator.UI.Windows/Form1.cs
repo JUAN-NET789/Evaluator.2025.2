@@ -62,7 +62,7 @@ namespace Evaluator.UI.Windows
 
         private void btndot_Click(object sender, EventArgs e)
         {
-            txtdisplay.Text += ".";
+            txtdisplay.Text += ",";
         }
 
         private void btnopenparentesis_Click(object sender, EventArgs e)

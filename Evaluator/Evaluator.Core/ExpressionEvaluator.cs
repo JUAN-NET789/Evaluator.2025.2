@@ -41,7 +41,7 @@ public class ExpressionEvaluator
             {
                 // Parse multi-digit number (and decimals)
                 int start = i;
-                while (i < infix.Length && (char.IsDigit(infix[i]) || infix[i] == '.'))
+                while (i < infix.Length && (char.IsDigit(infix[i]) || infix[i] == ','))
                     i++;
                 postfix.Add(infix.Substring(start, i - start));
             }
